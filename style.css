@@ -1,0 +1,305 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #0d1117;
+  color: white;
+}
+
+nav {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 8%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #161b22;
+  z-index: 1000;
+}
+
+.logo {
+  font-size: 30px;
+  font-weight: 700;
+  color: #58a6ff;
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+}
+
+nav ul li {
+  margin-left: 30px;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  font-size: 17px;
+  transition: 0.3s;
+}
+
+nav ul li a:hover {
+  color: #58a6ff;
+}
+
+.hero {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 120px 8%;
+}
+
+.hero-text {
+  width: 55%;
+}
+
+.hero-text h4 {
+  font-size: 22px;
+  color: #58a6ff;
+}
+
+.hero-text h1 {
+  font-size: 60px;
+  margin: 15px 0;
+}
+
+.hero-text h3 {
+  font-size: 28px;
+  color: #8b949e;
+  margin-bottom: 20px;
+}
+
+.hero-text p {
+  font-size: 18px;
+  line-height: 1.8;
+  color: #c9d1d9;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.btn {
+  background: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.btn-outline {
+  border: 2px solid #4da3ff;
+  color: #4da3ff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.btn-linkedin {
+  background: #0077b5;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn:hover {
+  background: #218838;
+}
+
+.btn-outline:hover {
+  background: #4da3ff;
+  color: white;
+}
+
+.btn-linkedin:hover {
+  background: #005f8d;
+}
+
+.buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.btn {
+  background: #28a745;
+  color: white;
+  padding: 10px 22px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.btn-box {
+  border: 2px solid #7ab8ff;
+  color: #7ab8ff;
+  padding: 10px 22px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+/* Hover Effect */
+.btn-box:hover {
+  background: #7ab8ff;
+  color: black;
+}
+
+.hero-image {
+  width: 40%;
+  display: flex;
+  justify-content: center;
+}
+
+.hero-image img {
+  width: 350px;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 6px solid #58a6ff;
+  box-shadow: 0 0 35px #58a6ff;
+}
+
+section {
+  padding: 90px 8%;
+}
+
+section h2 {
+  font-size: 42px;
+  text-align: center;
+  margin-bottom: 40px;
+  color: #58a6ff;
+}
+
+section p {
+  font-size: 18px;
+  line-height: 1.8;
+  color: #c9d1d9;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 25px;
+}
+
+.card {
+  background: #161b22;
+  padding: 40px;
+  border-radius: 12px;
+  text-align: center;
+  transition: 0.4s;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 0 20px #58a6ff;
+}
+
+.card i {
+  font-size: 45px;
+  color: #58a6ff;
+}
+
+.card h3 {
+  margin-top: 20px;
+}
+
+.project {
+  background: #161b22;
+  padding: 35px;
+  border-radius: 12px;
+  transition: 0.4s;
+}
+
+.project:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 0 20px #58a6ff;
+}
+
+.project h3 {
+  color: #58a6ff;
+  margin-bottom: 15px;
+}
+
+#contact p {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#contact a {
+  color: #58a6ff;
+  text-decoration: none;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  background: #161b22;
+  color: #8b949e;
+}
+
+@media (max-width: 900px) {
+  nav {
+    flex-direction: column;
+  }
+
+  nav ul {
+    margin-top: 20px;
+  }
+
+  .hero {
+    flex-direction: column-reverse;
+    text-align: center;
+  }
+
+  .hero-text {
+    width: 100%;
+  }
+
+  .hero-image {
+    width: 100%;
+    margin-bottom: 40px;
+  }
+
+  .hero-image img {
+    width: 280px;
+    height: 280px;
+  }
+
+  .hero-text h1 {
+    font-size: 45px;
+  }
+
+  .hero-text h3 {
+    font-size: 24px;
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+}
