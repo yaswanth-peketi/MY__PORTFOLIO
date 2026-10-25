@@ -11,6 +11,7 @@ const { Resend } = require("resend");
 const crypto = require("crypto");
 
 const app = express();
+app.set("trust proxy", 1);
 app.disable("x-powered-by");
 app.use(helmet());
 app.use(express.json({ limit: "10kb" }));
@@ -45,12 +46,13 @@ const allowedOrigins = new Set([
 app.use(
   cors({
     origin(origin, callback) {
-      // Permit command-line health checks and server-to-server requests without Origin.
-      if (!origin || allowedOrigins.has(origin.replace(/\/$/, "")))
+      if (!origin || allowedOrigins.has(origin)) {
         return callback(null, true);
+      }
+
       return callback(new Error("Origin is not allowed by CORS."));
     },
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
@@ -220,11 +222,9 @@ app.post("/api/auth/register", authLimiter, async (req, res, next) => {
         .json({ error: "Password must be 10–72 characters long." });
     }
     if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
-      return res
-        .status(400)
-        .json({
-          error: "Password must include at least one letter and one number.",
-        });
+      return res.status(400).json({
+        error: "Password must include at least one letter and one number.",
+      });
     }
     const passwordHash = await bcrypt.hash(password, 12);
     try {
@@ -232,13 +232,11 @@ app.post("/api/auth/register", authLimiter, async (req, res, next) => {
         "INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, created_at",
         [name, email, passwordHash],
       );
-      return res
-        .status(201)
-        .json({
-          message:
-            "Account created. Sign in to receive your email verification code.",
-          user: result.rows[0],
-        });
+      return res.status(201).json({
+        message:
+          "Account created. Sign in to receive your email verification code.",
+        user: result.rows[0],
+      });
     } catch (err) {
       if (err.code === "23505")
         return res
@@ -297,12 +295,10 @@ app.post("/api/auth/verify-mfa", otpLimiter, async (req, res, next) => {
     );
     const row = result.rows[0];
     if (!row)
-      return res
-        .status(401)
-        .json({
-          error:
-            "Code is invalid or expired. Sign in again to request a new code.",
-        });
+      return res.status(401).json({
+        error:
+          "Code is invalid or expired. Sign in again to request a new code.",
+      });
     if (new Date(row.expires_at).getTime() < Date.now()) {
       await pool.query("DELETE FROM auth_challenges WHERE user_id = $1", [
         row.id,
@@ -315,12 +311,9 @@ app.post("/api/auth/verify-mfa", otpLimiter, async (req, res, next) => {
       await pool.query("DELETE FROM auth_challenges WHERE user_id = $1", [
         row.id,
       ]);
-      return res
-        .status(429)
-        .json({
-          error:
-            "Too many incorrect codes. Sign in again to request a new code.",
-        });
+      return res.status(429).json({
+        error: "Too many incorrect codes. Sign in again to request a new code.",
+      });
     }
     const matches = safeEqualHex(hashOtp(otp, row.otp_salt), row.otp_hash);
     if (!matches) {
