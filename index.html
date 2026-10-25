@@ -185,6 +185,109 @@
       </div>
     </section>
 
+    <section id="auth">
+      <h2>Account Authentication</h2>
+      <p>Create an account or sign in with email verification.</p>
+
+      <div class="auth-card">
+        <h3>Create Account</h3>
+        <form id="registerForm">
+          <label for="registerName">Full name</label>
+          <input
+            id="registerName"
+            name="name"
+            type="text"
+            minlength="2"
+            maxlength="80"
+            required
+          />
+
+          <label for="registerEmail">Email</label>
+          <input
+            id="registerEmail"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+          />
+
+          <label for="registerPassword">Password</label>
+          <input
+            id="registerPassword"
+            name="password"
+            type="password"
+            minlength="10"
+            maxlength="72"
+            autocomplete="new-password"
+            required
+          />
+          <small
+            >Password must contain at least 10 characters, including a letter
+            and a number.</small
+          >
+
+          <button type="submit">Register</button>
+        </form>
+        <p id="registerMessage" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="auth-card">
+        <h3>Sign In</h3>
+        <form id="loginForm">
+          <label for="loginEmail">Email</label>
+          <input
+            id="loginEmail"
+            name="email"
+            type="email"
+            autocomplete="username"
+            required
+          />
+
+          <label for="loginPassword">Password</label>
+          <input
+            id="loginPassword"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+          />
+
+          <button type="submit">Sign In</button>
+        </form>
+        <p id="loginMessage" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="auth-card" id="mfaCard" hidden>
+        <h3>Verify Your Email</h3>
+        <p>Enter the six-digit code sent to your email address.</p>
+
+        <form id="mfaForm">
+          <label for="mfaCode">Verification code</label>
+          <input
+            id="mfaCode"
+            name="code"
+            type="text"
+            inputmode="numeric"
+            pattern="[0-9]{6}"
+            minlength="6"
+            maxlength="6"
+            autocomplete="one-time-code"
+            required
+          />
+
+          <button type="submit">Verify and Sign In</button>
+        </form>
+        <p id="mfaMessage" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="auth-card" id="accountCard" hidden>
+        <h3>Your Account</h3>
+        <p id="accountMessage"></p>
+        <button type="button" id="logoutButton">Log Out</button>
+        <p id="logoutMessage" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
     <section id="contact">
       <h2>Contact</h2>
 
