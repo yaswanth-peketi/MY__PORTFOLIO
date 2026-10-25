@@ -33,12 +33,11 @@ function setFormBusy(form, busy) {
 }
 
 function setAuthenticatedView(user) {
-  $("registerForm").closest(".auth-card").hidden = true;
-  $("loginForm").closest(".auth-card").hidden = true;
-  $("mfaCard").hidden = true;
-  $("accountCard").hidden = false;
+  $("auth").hidden = true;
+  $("portfolioContent").hidden = false;
+  $("logoutButton").hidden = false;
 
-  showMessage("accountMessage", `Signed in as ${user.name} (${user.email}).`);
+  window.scrollTo({ top: 0, behavior: "instant" });
 }
 
 // 1. Register a new account.
@@ -173,20 +172,32 @@ async function restoreSession() {
 }
 
 // 5. Log out and discard the client-side token.
+
 $("logoutButton").addEventListener("click", async () => {
   const token = sessionStorage.getItem("portfolio_token");
 
-  // Discard the token even if the network request fails.
+  // Clear the session immediately.
   sessionStorage.removeItem("portfolio_token");
   pendingEmail = "";
 
-  $("accountCard").hidden = true;
-  $("registerForm").closest(".auth-card").hidden = false;
-  $("loginForm").closest(".auth-card").hidden = false;
+  // Hide the portfolio and return to authentication.
+  $("portfolioContent").hidden = true;
+  $("logoutButton").hidden = true;
+  $("auth").hidden = false;
+
+  // Reset the login and MFA forms.
+  $("loginForm").reset();
+  $("registerForm").reset();
+  $("mfaForm").reset();
+
   $("mfaCard").hidden = true;
 
-  showMessage("logoutMessage", "You have been logged out.");
+  showMessage("loginMessage", "You have logged out successfully.");
+  showMessage("mfaMessage", "");
 
+  window.scrollTo({ top: 0, behavior: "instant" });
+
+  // Notify the backend when possible.
   if (token) {
     try {
       await apiRequest("/api/auth/logout", {
@@ -195,8 +206,8 @@ $("logoutButton").addEventListener("click", async () => {
           Authorization: `Bearer ${token}`,
         },
       });
-    } catch {
-      // The local session is already cleared.
+    } catch (error) {
+      console.error("Logout request failed:", error.message);
     }
   }
 });

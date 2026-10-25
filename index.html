@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Peketi yaswanth | Portfolio</title>
+    <title>Peketi Yaswanth | Portfolio</title>
 
     <link rel="stylesheet" href="style.css" />
 
@@ -20,307 +20,333 @@
   </head>
 
   <body>
-    <nav>
-      <div class="logo">Peketi Yaswanth</div>
+    <!-- ================= AUTHENTICATION ================= -->
+    <main id="auth">
+      <section class="auth-section">
+        <h2>Account Authentication</h2>
+        <p>Create an account or sign in with email verification.</p>
 
-      <ul>
-        <li><a href="#home">Home</a></li>
+        <!-- REGISTER -->
+        <div class="auth-card">
+          <h3>Create Account</h3>
 
-        <li><a href="#about">About</a></li>
+          <form id="registerForm">
+            <label for="registerName">Full Name</label>
+            <input
+              id="registerName"
+              name="name"
+              type="text"
+              minlength="2"
+              maxlength="80"
+              autocomplete="name"
+              required
+            />
 
-        <li><a href="#skills">Skills</a></li>
+            <label for="registerEmail">Email</label>
+            <input
+              id="registerEmail"
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+            />
 
-        <li><a href="#projects">Projects</a></li>
+            <label for="registerPassword">Password</label>
+            <input
+              id="registerPassword"
+              name="password"
+              type="password"
+              minlength="10"
+              maxlength="72"
+              autocomplete="new-password"
+              required
+            />
 
-        <li><a href="#contact">Contact</a></li>
-      </ul>
-    </nav>
+            <small>
+              Use at least 10 characters, including a letter and a number.
+            </small>
 
-    <section class="hero" id="home">
-      <div class="hero-text">
-        <h4>Hello 👋 I'm</h4>
+            <button type="submit">Register</button>
+          </form>
 
-        <h1>Peketi Yaswanth</h1>
+          <p id="registerMessage" role="status" aria-live="polite"></p>
+        </div>
 
-        <h3>
-          4th-Year Integrated M.Tech CSE Student | Machine Learning Enthusiast
-        </h3>
+        <!-- LOGIN -->
+        <div class="auth-card">
+          <h3>Sign In</h3>
+
+          <form id="loginForm">
+            <label for="loginEmail">Email</label>
+            <input
+              id="loginEmail"
+              name="email"
+              type="email"
+              autocomplete="username"
+              required
+            />
+
+            <label for="loginPassword">Password</label>
+            <input
+              id="loginPassword"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+            />
+
+            <button type="submit">Sign In</button>
+          </form>
+
+          <p id="loginMessage" role="status" aria-live="polite"></p>
+        </div>
+
+        <!-- EMAIL MFA -->
+        <div class="auth-card" id="mfaCard" hidden>
+          <h3>Verify Your Email</h3>
+
+          <p>
+            Enter the six-digit verification code sent to your email address.
+          </p>
+
+          <form id="mfaForm">
+            <label for="mfaCode">Verification Code</label>
+            <input
+              id="mfaCode"
+              name="code"
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]{6}"
+              minlength="6"
+              maxlength="6"
+              autocomplete="one-time-code"
+              required
+            />
+
+            <button type="submit">Verify and Sign In</button>
+          </form>
+
+          <p id="mfaMessage" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================= PORTFOLIO ================= -->
+    <div id="portfolioContent" hidden>
+      <!-- NAVIGATION -->
+      <nav>
+        <div class="logo">Peketi Yaswanth</div>
+
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#skills">Skills</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+
+        <button type="button" id="logoutButton" hidden>
+          <i class="fa-solid fa-right-from-bracket"></i>
+          Log Out
+        </button>
+      </nav>
+
+      <!-- HOME -->
+      <section class="hero" id="home">
+        <div class="hero-text">
+          <h4>Hello 👋 I'm</h4>
+
+          <h1>Peketi Yaswanth</h1>
+
+          <h3>
+            4th-Year Integrated M.Tech CSE Student | Machine Learning Enthusiast
+          </h3>
+
+          <p>
+            Motivated 4th-year Integrated M.Tech CSE student at VIT-AP
+            University with a strong interest in Machine Learning and building
+            real-world applications. Passionate about solving problems through
+            technology and continuously improving technical and analytical
+            skills. Also experienced in event management and leadership, with
+            the ability to organize, coordinate, and deliver impactful results.
+          </p>
+
+          <div class="buttons">
+            <a href="#projects" class="btn">View Projects</a>
+
+            <a
+              href="https://github.com/yaswanth-peketi"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-box"
+            >
+              GitHub
+            </a>
+
+            <a
+              href="https://www.linkedin.com/in/peketi-yaswanth-b1a81b334/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-box"
+            >
+              LinkedIn
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-image">
+          <img src="images/profile.png" alt="Peketi Yaswanth" />
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section id="about">
+        <h2>About Me</h2>
 
         <p>
-          Motivated 4th-year Integrated M.Tech CSE student at VIT-AP University
-          with a strong interest in Machine Learning, and building real-world
-          applications. Passionate about solving problems through technology and
-          continuously improving technical and analytical skills. Also
-          experienced in event management and leadership, with the ability to
-          organize, coordinate, and deliver impactful results.
+          Motivated 4th-year Integrated M.Tech CSE student with strong
+          foundations in Java, Python, HTML, and CSS, along with growing
+          expertise in Machine Learning. Skilled at applying programming and ML
+          concepts to problem-solving and practical projects. Proficient in
+          event management and time analysis, with a proven ability to organize,
+          coordinate, and deliver results effectively. An enthusiastic learner
+          with a keen interest in business management, combining technical
+          expertise with leadership and management skills to excel in academic
+          and professional environments.
+        </p>
+      </section>
+
+      <!-- SKILLS -->
+      <section id="skills">
+        <h2>Skills</h2>
+
+        <div class="cards">
+          <div class="card">
+            <i class="fa-brands fa-python"></i>
+            <h3>Python</h3>
+          </div>
+
+          <div class="card">
+            <i class="fa-brands fa-java"></i>
+            <h3>Java</h3>
+          </div>
+
+          <div class="card">
+            <i class="fa-brands fa-html5"></i>
+            <h3>HTML5</h3>
+          </div>
+
+          <div class="card">
+            <i class="fa-brands fa-css3-alt"></i>
+            <h3>CSS3</h3>
+          </div>
+
+          <div class="card">
+            <i class="fa-solid fa-code"></i>
+            <h3>DSA</h3>
+          </div>
+
+          <div class="card">
+            <i class="fa-solid fa-brain"></i>
+            <h3>Machine Learning</h3>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROJECTS -->
+      <section id="projects">
+        <h2>Projects</h2>
+
+        <div class="project">
+          <h3>Smart Agriculture System (IoT)</h3>
+
+          <p>
+            <strong>Technologies:</strong>
+            Arduino UNO, ESP32, IoT Sensors, Android (Java), RS485, L298N
+          </p>
+
+          <p>
+            Developed an IoT-based smart farming system to monitor temperature,
+            humidity, soil moisture, and nutrients. Built an Android app for
+            real-time crop recommendations using CSV-based logic. Automated
+            irrigation using RS485 communication and an L298N motor driver.
+            Enabled remote monitoring, live data logging, and analysis for
+            better farming decisions.
+          </p>
+
+          <h3>Food Donation Platform (Hackathon)</h3>
+
+          <p>
+            <strong>Technologies:</strong>
+            HTML, CSS, JavaScript, Node.js, MySQL, Map APIs
+          </p>
+
+          <p>
+            Developed a web platform connecting donors, NGOs, and volunteers for
+            food and money donations. Allowed users to submit food details,
+            donate funds, and track distribution. Used map-based location
+            features to find nearby donations quickly. Built during a 24-hour
+            hackathon, demonstrating teamwork and fast problem-solving.
+          </p>
+
+          <h3>Diabetes Prediction System (Machine Learning)</h3>
+
+          <p>
+            <strong>Technologies:</strong>
+            Python, Scikit-learn, Pandas, NumPy, Streamlit
+          </p>
+
+          <p>
+            Built a machine learning model to predict diabetes risk using health
+            parameters. Applied preprocessing techniques such as handling
+            missing values and feature scaling. Trained models to produce
+            prediction results and developed a Streamlit app for real-time input
+            and user interaction.
+          </p>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section id="contact">
+        <h2>Contact</h2>
+
+        <p>
+          <i class="fa-solid fa-envelope"></i>
+          <a href="mailto:yaswanthpeketi2045@gmail.com">
+            yaswanthpeketi2045@gmail.com
+          </a>
         </p>
 
-        <div class="buttons">
-          <a href="#projects" class="btn"> View Projects </a>
-
+        <p>
+          <i class="fa-brands fa-github"></i>
           <a
             href="https://github.com/yaswanth-peketi"
             target="_blank"
-            class="btn-box"
+            rel="noopener noreferrer"
           >
-            GitHub
+            github.com/yaswanth-peketi
           </a>
+        </p>
 
+        <p>
+          <i class="fa-brands fa-linkedin"></i>
           <a
             href="https://www.linkedin.com/in/peketi-yaswanth-b1a81b334/"
             target="_blank"
-            class="btn-box"
+            rel="noopener noreferrer"
           >
-            LinkedIn
+            linkedin.com/in/peketi-yaswanth-b1a81b334
           </a>
-        </div>
-      </div>
-
-      <div class="hero-image">
-        <img src="images/profile.png" alt="Peketi Yaswanth" />
-      </div>
-    </section>
-
-    <section id="about">
-      <h2>About Me</h2>
-
-      <p>
-        Motivated 4th-year Integrated M.Tech CSE student with strong foundations
-        in Java, Python, HTML, and CSS, along with growing expertise in Machine
-        Learning. Skilled at applying programming and ML concepts to
-        problem-solving and practical projects. Proficient in event management
-        and time analysis, with a proven ability to organize, coordinate, and
-        deliver results effectively. An enthusiastic learner with a keen
-        interest in business management, combining technical expertise with
-        leadership and management skills to excel in both academic and
-        professional environments.
-      </p>
-    </section>
-
-    <section id="skills">
-      <h2>Skills</h2>
-
-      <div class="cards">
-        <div class="card">
-          <i class="fa-brands fa-python"></i>
-
-          <h3>Python</h3>
-        </div>
-
-        <div class="card">
-          <i class="fa-brands fa-java"></i>
-
-          <h3>Java</h3>
-        </div>
-
-        <div class="card">
-          <i class="fa-brands fa-html5"></i>
-
-          <h3>HTML5</h3>
-        </div>
-
-        <div class="card">
-          <i class="fa-brands fa-css3-alt"></i>
-
-          <h3>CSS3</h3>
-        </div>
-
-        <div class="card">
-          <i class="fa-solid fa-code"></i>
-
-          <h3>DSA</h3>
-        </div>
-
-        <div class="card">
-          <i class="fa-solid fa-brain"></i>
-
-          <h3>Machine Learning</h3>
-        </div>
-      </div>
-    </section>
-
-    <section id="projects">
-      <h2>Projects</h2>
-
-      <div class="project">
-        <h3>Smart Agriculture System (IoT)</h3>
-        <p>
-          <strong>Technologies:</strong> Arduino UNO, ESP32, IoT Sensors,
-          Android (Java), RS485, L298N
         </p>
-        <p>
-          Developed an IoT-based smart farming system to monitor temperature,
-          humidity, soil moisture, and nutrients. Built an Android app for
-          real-time crop recommendations using CSV-based logic. Automated
-          irrigation using RS485 communication and L298N motor driver. Enabled
-          remote monitoring, live data logging, and analysis for better farming
-          decisions.
-        </p>
+      </section>
 
-        <h3>Food Donation Platform (Hackathon)</h3>
-        <p>
-          <strong>Technologies:</strong> HTML, CSS, JavaScript, Node.js, MySQL,
-          Map APIs
-        </p>
-        <p>
-          Developed a web platform connecting donors, NGOs, and volunteers for
-          food and money donations. Allowed users to submit food details, donate
-          funds, andt rack distribution. Used map-based location features to
-          find nearby donations quickly. Built during a 24-hour hackathon,
-          showing teamwork and fast problem-solving.
-        </p>
+      <!-- FOOTER -->
+      <footer>
+        <p>© 2026 Peketi Yaswanth</p>
+      </footer>
+    </div>
 
-        <h3>Diabetes Prediction System (Machine Learning)</h3>
-        <p>
-          <strong>Technologies:</strong> Python, Scikit-learn, Pandas, NumPy,
-          Streamlit
-        </p>
-        <p>
-          Built a machine learning model to predict diabetes risk using health
-          parameters. Applied preprocessing techniques like handling missing
-          values and feature scaling. Trained models for accurate prediction
-          results. Developed a Streamlit app for real-time input and easy user
-          interaction.
-        </p>
-      </div>
-    </section>
-
-    <section id="auth">
-      <h2>Account Authentication</h2>
-      <p>Create an account or sign in with email verification.</p>
-
-      <div class="auth-card">
-        <h3>Create Account</h3>
-        <form id="registerForm">
-          <label for="registerName">Full name</label>
-          <input
-            id="registerName"
-            name="name"
-            type="text"
-            minlength="2"
-            maxlength="80"
-            required
-          />
-
-          <label for="registerEmail">Email</label>
-          <input
-            id="registerEmail"
-            name="email"
-            type="email"
-            autocomplete="email"
-            required
-          />
-
-          <label for="registerPassword">Password</label>
-          <input
-            id="registerPassword"
-            name="password"
-            type="password"
-            minlength="10"
-            maxlength="72"
-            autocomplete="new-password"
-            required
-          />
-          <small
-            >Password must contain at least 10 characters, including a letter
-            and a number.</small
-          >
-
-          <button type="submit">Register</button>
-        </form>
-        <p id="registerMessage" role="status" aria-live="polite"></p>
-      </div>
-
-      <div class="auth-card">
-        <h3>Sign In</h3>
-        <form id="loginForm">
-          <label for="loginEmail">Email</label>
-          <input
-            id="loginEmail"
-            name="email"
-            type="email"
-            autocomplete="username"
-            required
-          />
-
-          <label for="loginPassword">Password</label>
-          <input
-            id="loginPassword"
-            name="password"
-            type="password"
-            autocomplete="current-password"
-            required
-          />
-
-          <button type="submit">Sign In</button>
-        </form>
-        <p id="loginMessage" role="status" aria-live="polite"></p>
-      </div>
-
-      <div class="auth-card" id="mfaCard" hidden>
-        <h3>Verify Your Email</h3>
-        <p>Enter the six-digit code sent to your email address.</p>
-
-        <form id="mfaForm">
-          <label for="mfaCode">Verification code</label>
-          <input
-            id="mfaCode"
-            name="code"
-            type="text"
-            inputmode="numeric"
-            pattern="[0-9]{6}"
-            minlength="6"
-            maxlength="6"
-            autocomplete="one-time-code"
-            required
-          />
-
-          <button type="submit">Verify and Sign In</button>
-        </form>
-        <p id="mfaMessage" role="status" aria-live="polite"></p>
-      </div>
-
-      <div class="auth-card" id="accountCard" hidden>
-        <h3>Your Account</h3>
-        <p id="accountMessage"></p>
-        <button type="button" id="logoutButton">Log Out</button>
-        <p id="logoutMessage" role="status" aria-live="polite"></p>
-      </div>
-    </section>
-
-    <section id="contact">
-      <h2>Contact</h2>
-
-      <p>
-        <i class="fa-solid fa-envelope"></i>
-
-        yaswanthpeketi2045@gmail.com
-      </p>
-
-      <p>
-        <i class="fa-brands fa-github"></i>
-
-        <a href="https://github.com/yaswanth-peketi">
-          github.com/yaswanth-peketi
-        </a>
-      </p>
-
-      <p>
-        <i class="fa-brands fa-linkedin"></i>
-
-        <a
-          href="https://www.linkedin.com/in/peketi-yaswanth-b1a81b334/"
-          target="_blank"
-        >
-          linkedin.com/in/peketi-yaswanth-b1a81b334
-        </a>
-      </p>
-    </section>
-
-    <footer>
-      <p>© 2026 Peketi Yaswanth</p>
-    </footer>
-
+    <!-- KEEP THIS SCRIPT AT THE END -->
     <script src="script.js"></script>
   </body>
 </html>

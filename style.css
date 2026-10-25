@@ -303,3 +303,166 @@ footer {
     gap: 15px;
   }
 }
+
+[hidden] {
+  display: none !important;
+}
+
+/* ================= AUTHENTICATION PAGE ================= */
+
+#auth {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  background: #0d1117;
+}
+
+#auth > .auth-section {
+  width: 100%;
+  max-width: 520px;
+  margin: auto;
+}
+
+#auth h2 {
+  font-size: 36px;
+  text-align: center;
+  color: #58a6ff;
+  margin-bottom: 12px;
+}
+
+#auth > .auth-section > p {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.auth-card {
+  width: 100%;
+  background: #161b22;
+  border: 1px solid #30363d;
+  padding: 28px;
+  border-radius: 14px;
+  margin-top: 22px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.auth-card h3 {
+  color: #58a6ff;
+  font-size: 23px;
+  margin-bottom: 20px;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-card label {
+  color: #c9d1d9;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 12px 14px;
+  background: #0d1117;
+  color: white;
+  border: 1px solid #484f58;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+}
+
+.auth-card input:focus {
+  border-color: #58a6ff;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+}
+
+.auth-card small {
+  color: #8b949e;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.auth-card button {
+  padding: 12px 18px;
+  margin-top: 10px;
+  background: #238636;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.auth-card button:hover {
+  background: #2ea043;
+}
+
+.auth-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-card [role="status"] {
+  margin-top: 12px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+/* ================= LOGOUT BUTTON ================= */
+
+#logoutButton {
+  padding: 10px 16px;
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#logoutButton:hover {
+  background: #6d28d9;
+}
+
+/* Keep hidden elements hidden, even with other CSS rules */
+[hidden] {
+  display: none !important;
+}
+
+/* ================= MOBILE RESPONSIVENESS ================= */
+
+@media (max-width: 600px) {
+  #auth {
+    padding: 25px 16px;
+  }
+
+  #auth h2 {
+    font-size: 29px;
+  }
+
+  .auth-card {
+    padding: 22px;
+  }
+
+  nav ul li {
+    margin: 8px;
+  }
+
+  nav ul li a {
+    font-size: 14px;
+  }
+
+  #logoutButton {
+    margin-top: 12px;
+  }
+}
