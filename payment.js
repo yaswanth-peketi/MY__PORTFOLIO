@@ -3,7 +3,7 @@
  * MyProfile - Razorpay Checkout
  */
 
-const PAYMENT_API = "https://myprofile-auth-api.onrender.com";
+const PAYMENT_API = "https://my-portfolio-zani.onrender.com";
 
 let paymentInProgress = false;
 

@@ -1,6 +1,8 @@
 require("dotenv").config();
 
 const express = require("express");
+const pinoHttp = require("pino-http");
+const logger = require("./logger");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
@@ -15,6 +17,31 @@ app.set("trust proxy", 1);
 app.disable("x-powered-by");
 app.use(helmet());
 app.use(express.json({ limit: "10kb" }));
+
+app.use(
+  pinoHttp({
+    logger,
+    autoLogging: true,
+    customLogLevel(_req, res, err) {
+      if (err || res.statusCode >= 500) return "error";
+      if (res.statusCode >= 400) return "warn";
+      return "info";
+    },
+    serializers: {
+      req(req) {
+        return {
+          method: req.method,
+          url: req.url,
+        };
+      },
+      res(res) {
+        return {
+          statusCode: res.statusCode,
+        };
+      },
+    },
+  }),
+);
 
 const requiredEnv = [
   "DATABASE_URL",
@@ -471,11 +498,15 @@ app.use((err, _req, res, _next) => {
 });
 
 const port = Number(process.env.PORT || 3000);
+
 initDb()
   .then(() => {
-    app.listen(port, "0.0.0.0", () =>
-      console.log(`Auth API listening on port ${port}`),
-    );
+    app.listen(port, "0.0.0.0", () => {
+      logger.info(
+        { port },
+        "Portfolio authentication API started successfully",
+      );
+    });
   })
   .catch((err) => {
     console.error("Failed to initialize database:", err);

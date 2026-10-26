@@ -20,7 +20,13 @@
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.1",
+    "pino": "^10.4.0",
+    "pino-http": "^11.0.0",
     "razorpay": "^2.9.8",
     "resend": "^4.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2"
   }
 }
