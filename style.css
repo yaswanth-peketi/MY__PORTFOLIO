@@ -466,3 +466,61 @@ footer {
     margin-top: 12px;
   }
 }
+
+/* ================= GIVE ADVANCE BUTTON ================= */
+
+#payNowBtn {
+  display: block;
+  width: min(100%, 420px);
+  min-height: 68px;
+  margin: 24px auto 10px;
+  padding: 18px 30px;
+
+  background: linear-gradient(135deg, #238636, #2ea043);
+  color: #ffffff;
+
+  border: none;
+  border-radius: 14px;
+
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(46, 160, 67, 0.3);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+#payNowBtn:hover {
+  background: linear-gradient(135deg, #2ea043, #3fb950);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(46, 160, 67, 0.4);
+}
+
+#payNowBtn:active {
+  transform: scale(0.98);
+}
+
+#payNowBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+#payNowBtn i {
+  margin-right: 10px;
+}
+
+@media (max-width: 600px) {
+  #payNowBtn {
+    width: 100%;
+    min-height: 62px;
+    font-size: 20px;
+    padding: 16px 20px;
+  }
+}

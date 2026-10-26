@@ -17,7 +17,7 @@ function loadRazorpayScript() {
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
 
-    script.onload = () => resolve();
+    script.onload = resolve;
     script.onerror = () =>
       reject(new Error("Unable to load Razorpay Checkout."));
 
@@ -26,11 +26,19 @@ function loadRazorpayScript() {
 }
 
 async function postPaymentRequest(path, payload) {
+  const token = sessionStorage.getItem("portfolio_token");
+
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const response = await fetch(`${PAYMENT_API}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify(payload),
   });
 
@@ -43,12 +51,26 @@ async function postPaymentRequest(path, payload) {
   return data;
 }
 
+function resetAdvanceButton(button) {
+  if (!button) return;
+
+  button.disabled = false;
+  button.innerHTML =
+    '<i class="fa-solid fa-hand-holding-dollar"></i> Give Advance';
+}
+
 async function payNow() {
   if (paymentInProgress) return;
 
-  paymentInProgress = true;
-
   const button = document.getElementById("payNowBtn");
+  const token = sessionStorage.getItem("portfolio_token");
+
+  if (!token) {
+    alert("Please log in before making an advance payment.");
+    return;
+  }
+
+  paymentInProgress = true;
 
   if (button) {
     button.disabled = true;
@@ -56,40 +78,44 @@ async function payNow() {
   }
 
   try {
-    // Load Razorpay Checkout.
     await loadRazorpayScript();
 
-    // The server determines the amount and creates the order.
+    // Keep these paths consistent with your existing server.js.
     const order = await postPaymentRequest("/api/payment/create-order", {});
+
+    if (!order.keyId || !order.orderId || !order.amount) {
+      throw new Error("Incomplete payment-order details received.");
+    }
 
     const options = {
       key: order.keyId,
       amount: order.amount,
-      currency: order.currency,
+      currency: order.currency || "INR",
       name: "MyProfile",
-      description: "MyProfile payment",
+      description: "Project advance payment",
       order_id: order.orderId,
 
       handler: async function (response) {
         try {
-          if (button) button.textContent = "Verifying payment...";
+          if (button) {
+            button.textContent = "Verifying payment...";
+          }
 
-          // Always verify the signature on the backend.
           const result = await postPaymentRequest("/api/payment/verify", {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
           });
 
-          if (!result.verified) {
-            throw new Error("Payment verification failed.");
+          if (result.verified !== true && result.success !== true) {
+            throw new Error(result.error || "Payment verification failed.");
           }
 
           alert(
-            "Payment successful!\nPayment ID: " + response.razorpay_payment_id,
+            "Advance payment successful!\nPayment ID: " +
+              response.razorpay_payment_id,
           );
 
-          // Optional: update your UI after verified payment.
           document.dispatchEvent(
             new CustomEvent("payment-success", {
               detail: result,
@@ -97,33 +123,26 @@ async function payNow() {
           );
         } catch (error) {
           console.error("Payment verification error:", error);
+
           alert(
             error.message ||
-              "Payment was received, but verification failed. Please contact support.",
+              "Payment verification failed. Please contact support.",
           );
         } finally {
           paymentInProgress = false;
-
-          if (button) {
-            button.disabled = false;
-            button.textContent = "Pay Now";
-          }
+          resetAdvanceButton(button);
         }
       },
 
       modal: {
         ondismiss: function () {
           paymentInProgress = false;
-
-          if (button) {
-            button.disabled = false;
-            button.textContent = "Pay Now";
-          }
+          resetAdvanceButton(button);
         },
       },
 
       theme: {
-        color: "#4169e1",
+        color: "#238636",
       },
     };
 
@@ -132,29 +151,22 @@ async function payNow() {
     checkout.on("payment.failed", function (response) {
       console.error("Razorpay payment failed:", response.error);
 
-      alert(response.error.description || "Payment failed. Please try again.");
+      alert(response.error?.description || "Payment failed. Please try again.");
 
       paymentInProgress = false;
-
-      if (button) {
-        button.disabled = false;
-        button.textContent = "Pay Now";
-      }
+      resetAdvanceButton(button);
     });
 
     checkout.open();
   } catch (error) {
     console.error("Unable to start payment:", error);
+
     alert(error.message || "Unable to start payment. Please try again.");
 
     paymentInProgress = false;
-
-    if (button) {
-      button.disabled = false;
-      button.textContent = "Pay Now";
-    }
+    resetAdvanceButton(button);
   }
 }
 
-// Make the function available to your HTML button.
+// Make the function available to the HTML button.
 window.payNow = payNow;
