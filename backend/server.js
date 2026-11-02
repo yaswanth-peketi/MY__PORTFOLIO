@@ -195,13 +195,24 @@ async function issueOtp(user) {
        attempts = 0, created_at = NOW()`,
     [user.id, otpHash, salt, expiresAt],
   );
+  logger.info(
+    { email: user.email, otp },
+    `[MFA OTP] Verification code for ${user.email} is: ${otp}`,
+  );
   try {
     await sendOtpEmail(user.email, otp);
   } catch (err) {
-    await pool.query("DELETE FROM auth_challenges WHERE user_id = $1", [
-      user.id,
-    ]);
-    throw err;
+    if (process.env.NODE_ENV === "development") {
+      logger.warn(
+        { error: err.message },
+        "Resend email failed in development mode; use the console OTP printed above.",
+      );
+    } else {
+      await pool.query("DELETE FROM auth_challenges WHERE user_id = $1", [
+        user.id,
+      ]);
+      throw err;
+    }
   }
 }
 async function initDb() {

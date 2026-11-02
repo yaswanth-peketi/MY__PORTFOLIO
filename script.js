@@ -1,4 +1,8 @@
-const API_BASE_URL = "https://my-portfolio-zani.onrender.com";
+const API_BASE_URL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? ""
+    : "https://my-portfolio-zani.onrender.com";
 
 const $ = (id) => document.getElementById(id);
 
