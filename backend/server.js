@@ -214,6 +214,7 @@ async function issueOtp(user) {
       throw err;
     }
   }
+  return otp;
 }
 async function initDb() {
   await pool.query(`
@@ -349,7 +350,7 @@ app.post("/api/auth/login", authLimiter, async (req, res, next) => {
       });
       return res.status(401).json({ error: "Invalid email or password." });
     }
-    await issueOtp(user);
+    const otp = await issueOtp(user);
     await logToElk({
       event: "user_login_otp_sent",
       type: "auth_audit",
@@ -360,7 +361,10 @@ app.post("/api/auth/login", authLimiter, async (req, res, next) => {
     });
     res.json({
       mfaRequired: true,
-      message: "Verification code sent to your email.",
+      message:
+        process.env.NODE_ENV === "development"
+          ? `Verification code: ${otp} (Local Dev Mode)`
+          : "Verification code sent to your email.",
       email: user.email,
       expiresInSeconds: otpTtlMinutes * 60,
     });
