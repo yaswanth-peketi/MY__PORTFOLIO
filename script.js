@@ -2,7 +2,7 @@ const API_BASE_URL =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1"
     ? ""
-    : "https://my-portfolio-zani.onrender.com";
+    : "http://13.49.13.198";
 
 const $ = (id) => document.getElementById(id);
 
