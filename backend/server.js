@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const path = require("path");
+const fs = require("fs");
 const express = require("express");
 const pinoHttp = require("pino-http");
 const logger = require("./logger");
@@ -328,7 +329,10 @@ app.get("/api/health", async (_req, res) => {
   const esClient = getEsClient();
   if (esClient) {
     try {
-      await esClient.ping();
+      await Promise.race([
+        esClient.ping(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 400)),
+      ]);
       esStatus = "connected";
     } catch {
       esStatus = "unavailable";
@@ -741,7 +745,11 @@ app.post("/api/elk/test-log", async (req, res) => {
 });
 
 app.get("/", (_req, res) => {
-  res.sendFile(path.join(staticDir, "index.html"));
+  const indexPath = path.join(staticDir, "index.html");
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+  return res.json({ status: "ok", service: "portfolio-backend" });
 });
 
 app.use((err, _req, res, _next) => {

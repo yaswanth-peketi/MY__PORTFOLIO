@@ -6,3 +6,5 @@ backend/.env
 Thumbs.db
 ngrok.exe
 ngrok
+bin/
+*.exe
