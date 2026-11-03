@@ -1,6 +1,6 @@
-# Peketi Yaswanth | Portfolio & Authentication API
+# Peketi Yaswanth | Portfolio & Security Audit System
 
-A modern developer portfolio featuring account authentication with email verification, Razorpay advance payments, and Elasticsearch & Kibana (ELK) security audit logging.
+A modern full-stack developer portfolio featuring account authentication with email verification, Razorpay advance payments, and a unified Docker architecture combining PostgreSQL and the **ELK Stack (Elasticsearch & Kibana)**.
 
 ---
 
@@ -15,23 +15,29 @@ A modern developer portfolio featuring account authentication with email verific
 ## 🏗 Architecture Overview
 
 ```
-┌──────────────────────────────────────────────┐
-│  Frontend (GitHub Pages / Render)            │
-│  - Account Authentication (Register / Login) │
-│  - Email Verification                       │
-│  - Portfolio Showcase (Skills, Projects)     │
-│  - Razorpay "Give Advance" Integration       │
-└──────────────────────┬───────────────────────┘
-                       │ HTTPS REST API
-                       ▼
-┌──────────────────────────────────────────────┐
-│  Backend (Render Web Service / Node.js)      │
-│  - Serves static portfolio files & API       │
-│  - PostgreSQL: User accounts & challenges    │
-│  - Resend: One-time verification email OTP   │
-│  - Razorpay: Order creation & verification   │
-│  - ELK Stack: Auth & audit logging           │
-└──────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  Frontend (GitHub Pages / Local Nginx)                      │
+│  - Modern Dark-Theme Portfolio                              │
+│  - User Sign-In & Email Verification Code                   │
+│  - Razorpay Project Advance Checkout                        │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ HTTPS REST API
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Backend (Render Cloud / Docker Node.js)                    │
+│  - Express REST API & Static Portfolio Server               │
+│  - PostgreSQL Database: Persistent Users & Challenges       │
+│  - Resend: Email OTP Code Dispatcher                        │
+│  - Razorpay API: Payment Orders & HMAC Verification         │
+│  - elkService.js: Structured Security Audit Pipeline        │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ Internal JSON Document Stream
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│  ELK Security & Audit Stack (Docker)                        │
+│  - Elasticsearch (Port 9200): Search & Analytics Database   │
+│  - Kibana (Port 5601): Live Security Operations Dashboard   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -40,90 +46,88 @@ A modern developer portfolio featuring account authentication with email verific
 
 ```
 MY__PORTFOLIO-master/
-├── index.html               # Main portfolio & authentication interface
-├── style.css                # Dark-mode portfolio styling
-├── script.js                # Frontend authentication & session controller
-├── payment.js               # Razorpay payment handler
-├── package.json             # Root scripts (start, dev, install)
+├── index.html               # Main portfolio & sign-in interface
+├── style.css                # Dark-mode styling, animations, and responsive layout
+├── script.js                # Frontend authentication controller
+├── payment.js               # Razorpay checkout handler
+├── docker-compose.yml       # Combines all 5 services: Postgres, ES, Kibana, Node, Nginx
+├── package.json             # Root npm scripts (docker:up, start, dev, test:elk)
 ├── render.yaml              # Render blueprint infrastructure configuration
-├── ELK_SETUP_GUIDE.md       # Complete guide for Elasticsearch & Kibana
+├── README.md                # Main project documentation
 ├── images/
 │   └── profile.png          # Portfolio profile picture
 ├── backend/
-│   ├── server.js            # Express API server & static file host
-│   ├── package.json         # Backend dependencies & scripts
-│   ├── .env                 # Local development environment variables
-│   ├── .env.example         # Example environment template
+│   ├── server.js            # Express API server & static host
 │   ├── elkService.js        # Elasticsearch client & audit logger
-│   ├── logger.js            # Pino structured logger
+│   ├── logger.js            # Pino structured JSON logger
 │   ├── test-elk.js          # ELK connection verification script
-│   └── Dockerfile           # Backend container definition
+│   ├── Dockerfile           # Backend container image definition
+│   ├── package.json         # Backend dependencies
+│   ├── .env                 # Local development environment variables
+│   └── .env.example         # Template for environment variables
 └── nginx/
-    └── nginx.conf           # Local Docker reverse proxy configuration
+    └── nginx.conf           # Local Nginx reverse proxy configuration
 ```
 
 ---
 
-## ⚡ Quick Start (Local Development)
+## 🐳 Quick Start with Docker (Combines All Services)
 
-### Option 1: Direct Node.js (Quickest)
-1. Install dependencies:
-   ```powershell
-   npm run install:backend
-   ```
-2. Start the server:
-   ```powershell
-   npm start
-   ```
-3. Open your browser at `http://localhost:3000`. The portfolio and API will be immediately available.
+To run the complete system locally (Database, Elasticsearch, Kibana, Backend API, and Frontend):
 
-### Option 2: Full Docker Stack (With Postgres & ELK)
-1. Start all containers (Postgres, Elasticsearch, Kibana, Backend, Nginx):
-   ```powershell
-   docker-compose up -d
-   ```
-2. Open `http://localhost` for the portfolio.
-3. Open `http://localhost:5601` for the Kibana dashboard.
+### 1. Start All Services
+```powershell
+docker-compose up -d
+```
+
+Docker will automatically build and start all 5 containers:
+- 🌐 **Portfolio Website (Nginx):** [http://localhost](http://localhost)
+- 📊 **Kibana Dashboard:** [http://localhost:5601](http://localhost:5601)
+- ⚡ **Backend API:** [http://localhost:3000](http://localhost:3000)
+- 🔍 **Elasticsearch API:** [http://localhost:9200](http://localhost:9200)
+- 🗄️ **PostgreSQL:** `localhost:5432`
+
+### 2. Verify ELK Pipeline
+Run the included test script to verify Elasticsearch indexing:
+```powershell
+npm run test:elk
+```
+
+### 3. View Audit Logs in Kibana
+1. Open [http://localhost:5601](http://localhost:5601) in your browser.
+2. Go to **Management** $\rightarrow$ **Data Views** $\rightarrow$ **Create data view**:
+   - **Name:** `Portfolio Logs`
+   - **Index pattern:** `portfolio-logs*`
+   - **Timestamp field:** `@timestamp`
+3. Go to **Analytics** $\rightarrow$ **Discover** to monitor sign-ins, IP addresses, and user activity live!
+
+### 4. Stop All Services
+```powershell
+docker-compose down
+```
 
 ---
 
-## 🌐 Deploying to Render
+## 🌐 Deploying on Render
 
-### 1. Web Service Settings
-- **Repository:** Connect your GitHub repository (`MY__PORTFOLIO`).
-- **Root Directory:** `backend` (or leave blank if building from root).
-- **Environment:** `Node`.
-- **Build Command:** `npm install`.
-- **Start Command:** `npm start`.
+### 1. Web Service Configuration
+- **Root Directory:** `backend` (or leave blank; root `package.json` auto-delegates)
+- **Runtime:** `Node`
+- **Build Command:** `npm install`
+- **Start Command:** `npm start`
 
-### 2. Environment Variables on Render
-Configure these in your Render Web Service **Environment** tab:
+### 2. Required Environment Variables on Render
 
-| Variable | Description | Example / Recommended Value |
+| Key | Description | Example / Recommended Value |
 |---|---|---|
 | `NODE_ENV` | Environment mode | `production` |
 | `DATABASE_URL` | Render PostgreSQL Connection String | `postgresql://...` (Internal URL from Render Postgres) |
 | `DATABASE_SSL` | Enable SSL for Render database | `true` |
-| `JWT_SECRET` | Secret key for JWT tokens (>= 32 chars) | `openssl rand -hex 32` |
+| `JWT_SECRET` | Secret key for JWT tokens (>= 32 chars) | Random 32+ character string |
 | `JWT_EXPIRES_IN` | Token duration | `1h` |
-| `FRONTEND_URL` | GitHub Pages origin | `https://yaswanth-peketi.github.io` |
-| `EXTRA_ALLOWED_ORIGINS` | Additional allowed origins for CORS | `https://yaswanth-peketi.github.io,http://localhost:5500,http://127.0.0.1:5500` |
-| `RESEND_API_KEY` | Resend API key for email OTP | `re_xxxxxxxxxxxxxxxxx` |
+| `FRONTEND_URL` | Production frontend origin | `https://yaswanth-peketi.github.io` |
+| `EXTRA_ALLOWED_ORIGINS` | Extra allowed CORS origins | `https://yaswanth-peketi.github.io,http://localhost:5500,http://127.0.0.1:5500` |
+| `RESEND_API_KEY` | Resend API key for email verification | `re_xxxxxxxxxxxxxxxxx` |
 | `RESEND_FROM` | Sender address verified in Resend | `Portfolio Security <onboarding@resend.dev>` |
 | `RAZORPAY_KEY_ID` | Razorpay Key ID | `rzp_test_xxxxxxxxxx` |
 | `RAZORPAY_KEY_SECRET` | Razorpay Key Secret | `xxxxxxxxxxxxxxxxxxxx` |
-| `ELASTICSEARCH_NODE` | (Optional) Managed Elastic / Ngrok URL | `https://your-elastic-deployment.es.us-east-1.aws.elastic.cloud:9243` |
-| `ELASTICSEARCH_INDEX` | Index name for audit logs | `portfolio-logs` |
-
----
-
-## 🔑 Key Features Fixed
-
-1. **Seamless Render Integration:**
-   `script.js` and `payment.js` automatically connect to `https://my-portfolio-zani.onrender.com` when running on GitHub Pages or local preview, and switch to relative URLs when running directly under the server.
-2. **Unified Static & API Server:**
-   Visiting the root URL (`https://my-portfolio-zani.onrender.com/` or `http://localhost:3000/`) now serves the full portfolio instead of returning `Cannot GET /`.
-3. **Smart CORS & Safe CSP:**
-   Allows requests from GitHub Pages, localhost live-preview tools (e.g. port 5500, 3000, 8080), and `file://` environments without CORS 403 blocks.
-4. **Resilient Razorpay & DB Handling:**
-   Server starts cleanly and provides helpful status messages even if Razorpay keys or local databases are not yet set up.

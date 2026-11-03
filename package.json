@@ -7,10 +7,10 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "node --watch backend/server.js",
-    "install:backend": "npm --prefix backend install",
-    "test:elk": "npm --prefix backend run test:elk",
-    "tunnel": "cloudflared tunnel --protocol http2 --url http://localhost:9200",
-    "tunnel:logs": "docker logs -f portfolio-cloudflared"
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "test:elk": "npm --prefix backend run test:elk"
   },
   "engines": {
     "node": ">=20"
