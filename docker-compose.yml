@@ -116,7 +116,7 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: portfolio-cloudflared
     restart: unless-stopped
-    command: tunnel --no-autoupdate --url http://elasticsearch:9200
+    command: tunnel --no-autoupdate --protocol http2 --url http://elasticsearch:9200
     depends_on:
       elasticsearch:
         condition: service_healthy
