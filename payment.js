@@ -3,7 +3,12 @@
  * MyProfile - Razorpay Checkout
  */
 
-const PAYMENT_API = "https://my-portfolio-zani.onrender.com";
+const PAYMENT_API =
+  (typeof API_BASE_URL !== "undefined" && API_BASE_URL !== null)
+    ? API_BASE_URL
+    : (window.API_BASE_URL ||
+       window.__PORTFOLIO_API_URL__ ||
+       "https://my-portfolio-zani.onrender.com");
 
 let paymentInProgress = false;
 

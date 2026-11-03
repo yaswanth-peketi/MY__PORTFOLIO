@@ -1,0 +1,16 @@
+{
+  "name": "my-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal Portfolio of Peketi Yaswanth with Node.js authentication, Email MFA, Razorpay payments, and ELK logging",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js",
+    "install:backend": "npm --prefix backend install",
+    "test:elk": "npm --prefix backend run test:elk"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,8 +1,34 @@
-const API_BASE_URL =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1"
-    ? ""
-    : "http://13.49.13.198";
+// Primary production backend hosted on Render
+const RENDER_BACKEND_URL = "https://my-portfolio-zani.onrender.com";
+
+function resolveApiBaseUrl() {
+  if (window.__PORTFOLIO_API_URL__) {
+    return window.__PORTFOLIO_API_URL__.replace(/\/$/, "");
+  }
+
+  const hostname = window.location.hostname;
+  const port = window.location.port;
+
+  // 1. If served directly by the Node backend (port 3000) or Docker Nginx reverse proxy (port 80)
+  if (
+    (hostname === "localhost" || hostname === "127.0.0.1") &&
+    (port === "3000" || port === "80" || port === "")
+  ) {
+    return "";
+  }
+
+  // 2. If loaded directly from the Render deployment URL
+  if (hostname.endsWith(".onrender.com")) {
+    return "";
+  }
+
+  // 3. For GitHub Pages (e.g. yaswanth-peketi.github.io), custom domains, file:// protocol,
+  // or local live servers (e.g. :5500), connect directly to the Render backend.
+  return RENDER_BACKEND_URL;
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
+window.API_BASE_URL = API_BASE_URL;
 
 const $ = (id) => document.getElementById(id);
 

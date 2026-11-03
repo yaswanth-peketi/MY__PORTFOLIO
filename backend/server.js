@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const path = require("path");
 const express = require("express");
 const pinoHttp = require("pino-http");
 const logger = require("./logger");
@@ -16,8 +17,53 @@ const { logToElk, getEsClient } = require("./elkService");
 const app = express();
 app.set("trust proxy", 1);
 app.disable("x-powered-by");
-app.use(helmet());
+
+// Configure Helmet to protect the app while allowing required CDN assets and Razorpay
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://checkout.razorpay.com",
+          "https://cdnjs.cloudflare.com",
+        ],
+        scriptSrcAttr: ["'unsafe-inline'"],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://fonts.googleapis.com",
+          "https://cdnjs.cloudflare.com",
+        ],
+        fontSrc: [
+          "'self'",
+          "https://fonts.gstatic.com",
+          "https://cdnjs.cloudflare.com",
+          "data:",
+        ],
+        imgSrc: ["'self'", "data:", "https:"],
+        frameSrc: ["'self'", "https://api.razorpay.com"],
+        connectSrc: [
+          "'self'",
+          "https://my-portfolio-zani.onrender.com",
+          "https://api.razorpay.com",
+          "https://lumberjack.razorpay.com",
+          "http://localhost:*",
+          "http://127.0.0.1:*",
+        ],
+      },
+    },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
+
 app.use(express.json({ limit: "10kb" }));
+
+// Serve static frontend portfolio files (HTML, CSS, JS, images) from project root
+const staticDir = path.resolve(__dirname, "..");
+app.use(express.static(staticDir));
 
 app.use(
   pinoHttp({
@@ -44,6 +90,22 @@ app.use(
   }),
 );
 
+const isDev = (process.env.NODE_ENV || "development") === "development";
+
+// Sensible local dev defaults
+if (isDev) {
+  process.env.JWT_SECRET =
+    process.env.JWT_SECRET ||
+    "portfolio_super_secure_jwt_secret_key_32_characters_long!";
+  process.env.RESEND_API_KEY =
+    process.env.RESEND_API_KEY || "re_dev_placeholder_key";
+  process.env.RESEND_FROM =
+    process.env.RESEND_FROM ||
+    "Portfolio Security <onboarding@resend.dev>";
+  process.env.FRONTEND_URL =
+    process.env.FRONTEND_URL || "https://yaswanth-peketi.github.io";
+}
+
 const requiredEnv = [
   "DATABASE_URL",
   "JWT_SECRET",
@@ -56,30 +118,47 @@ if (missingEnv.length) {
   console.error(
     `Missing required environment variables: ${missingEnv.join(", ")}`,
   );
-  process.exit(1);
+  if (!isDev) {
+    process.exit(1);
+  }
 }
-if (process.env.JWT_SECRET.length < 32) {
+if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
   console.error("JWT_SECRET must be at least 32 characters.");
-  process.exit(1);
+  if (!isDev) {
+    process.exit(1);
+  }
 }
 
 const allowedOrigins = new Set([
-  process.env.FRONTEND_URL.replace(/\/$/, ""),
+  (process.env.FRONTEND_URL || "https://yaswanth-peketi.github.io").replace(/\/$/, ""),
   ...(process.env.EXTRA_ALLOWED_ORIGINS || "")
     .split(",")
     .map((origin) => origin.trim().replace(/\/$/, ""))
     .filter(Boolean),
 ]);
 
+function isAllowedOrigin(origin) {
+  if (!origin || origin === "null") return true;
+  const clean = origin.replace(/\/$/, "");
+  if (allowedOrigins.has(clean)) return true;
+  // Allow localhost / 127.0.0.1 on any port for local development & testing
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(clean)) return true;
+  // Allow any GitHub Pages domain
+  if (/^https:\/\/[a-zA-Z0-9-]+\.github\.io$/.test(clean)) return true;
+  // Allow any Render domain
+  if (/^https:\/\/[a-zA-Z0-9-]+\.onrender\.com$/.test(clean)) return true;
+  return false;
+}
+
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.has(origin)) {
+      if (isAllowedOrigin(origin)) {
         return callback(null, true);
       }
-
       return callback(new Error("Origin is not allowed by CORS."));
     },
+    credentials: true,
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
@@ -484,14 +563,22 @@ app.post("/api/auth/verify-mfa", otpLimiter, async (req, res, next) => {
 
 const Razorpay = require("razorpay");
 
-if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
-  throw new Error("Razorpay environment variables are required.");
+let razorpay = null;
+if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+  try {
+    razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+    logger.info("Razorpay payment gateway initialized successfully");
+  } catch (err) {
+    logger.error({ error: err.message }, "Failed to initialize Razorpay");
+  }
+} else {
+  logger.warn(
+    "RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is not configured. Payment endpoints will return 503 until keys are set.",
+  );
 }
-
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
 
 // Example: ₹500. Change this amount on the server.
 // Amount is specified in paise: ₹500 = 50000 paise.
@@ -499,6 +586,12 @@ const PAYMENT_AMOUNT_PAISE = 50000;
 
 // Create an order.
 app.post("/api/payment/create-order", async (req, res) => {
+  if (!razorpay) {
+    return res.status(503).json({
+      error:
+        "Payment gateway is not configured on the server. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in your environment.",
+    });
+  }
   try {
     const order = await razorpay.orders.create({
       amount: PAYMENT_AMOUNT_PAISE,
@@ -523,6 +616,13 @@ app.post("/api/payment/create-order", async (req, res) => {
 
 // Verify the payment signature on the server.
 app.post("/api/payment/verify", async (req, res) => {
+  if (!razorpay) {
+    return res.status(503).json({
+      verified: false,
+      error:
+        "Payment gateway is not configured on the server. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in your environment.",
+    });
+  }
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
       req.body || {};
@@ -640,10 +740,15 @@ app.post("/api/elk/test-log", async (req, res) => {
   }
 });
 
+app.get("/", (_req, res) => {
+  res.sendFile(path.join(staticDir, "index.html"));
+});
+
 app.use((err, _req, res, _next) => {
   console.error(err.stack || err);
-  if (err.message === "Origin is not allowed by CORS.")
+  if (err.message && err.message.includes("Origin is not allowed by CORS")) {
     return res.status(403).json({ error: err.message });
+  }
   res.status(500).json({ error: err.message || "Internal server error." });
 });
 
@@ -653,14 +758,27 @@ initDb()
   .then(() => {
     app.listen(port, "0.0.0.0", () => {
       logger.info(
-        { port },
-        "Portfolio authentication API started successfully",
+        { port, url: `http://localhost:${port}` },
+        "Portfolio backend server started successfully",
       );
     });
   })
   .catch((err) => {
-    console.error("Failed to initialize database:", err);
-    process.exit(1);
+    console.error("Failed to initialize database:", err.message || err);
+    if (isDev) {
+      logger.warn(
+        "⚠️ Database connection failed. Starting server anyway so frontend and health check are accessible on http://localhost:" +
+          port,
+      );
+      app.listen(port, "0.0.0.0", () => {
+        logger.info(
+          { port, url: `http://localhost:${port}` },
+          "Portfolio backend server running (database unavailable - start PostgreSQL for authentication)",
+        );
+      });
+    } else {
+      process.exit(1);
+    }
   });
 
 process.on("SIGTERM", async () => {
