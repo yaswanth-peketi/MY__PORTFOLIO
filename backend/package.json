@@ -2,7 +2,7 @@
   "name": "portfolio-auth-mfa-backend",
   "version": "1.0.0",
   "private": true,
-  "description": "Authentication API with email MFA for a static portfolio",
+  "description": "Authentication API with email verification for a static portfolio",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

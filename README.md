@@ -1,6 +1,6 @@
 # Peketi Yaswanth | Portfolio & Authentication API
 
-A modern developer portfolio featuring account authentication with Email Multi-Factor Authentication (MFA), Razorpay advance payments, and Elasticsearch & Kibana (ELK) security audit logging.
+A modern developer portfolio featuring account authentication with email verification, Razorpay advance payments, and Elasticsearch & Kibana (ELK) security audit logging.
 
 ---
 
@@ -18,7 +18,7 @@ A modern developer portfolio featuring account authentication with Email Multi-F
 ┌──────────────────────────────────────────────┐
 │  Frontend (GitHub Pages / Render)            │
 │  - Account Authentication (Register / Login) │
-│  - Email MFA Verification                    │
+│  - Email Verification                       │
 │  - Portfolio Showcase (Skills, Projects)     │
 │  - Razorpay "Give Advance" Integration       │
 └──────────────────────┬───────────────────────┘
