@@ -61,7 +61,7 @@ function resetAdvanceButton(button) {
 
   button.disabled = false;
   button.innerHTML =
-    '<i class="fa-solid fa-hand-holding-dollar"></i> Give Advance';
+    '<i class="fa-solid fa-hand-holding-dollar"></i> <span>Give Advance (₹500)</span>';
 }
 
 async function payNow() {
@@ -71,7 +71,10 @@ async function payNow() {
   const token = sessionStorage.getItem("portfolio_token");
 
   if (!token) {
-    alert("Please log in before making an advance payment.");
+    alert("Please sign in or verify your account before making an advance payment.");
+    if (typeof window.openAuthModal === "function") {
+      window.openAuthModal();
+    }
     return;
   }
 

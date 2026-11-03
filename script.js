@@ -1,3 +1,9 @@
+/**
+ * ==============================================================================
+ * Peketi Yaswanth - Portfolio Controller & Authentication Client
+ * ==============================================================================
+ */
+
 // Primary production backend hosted on Render
 const RENDER_BACKEND_URL = "https://my-portfolio-zani.onrender.com";
 
@@ -34,8 +40,12 @@ const $ = (id) => document.getElementById(id);
 
 let pendingEmail = "";
 
+/**
+ * Universal JSON API fetch wrapper
+ */
 async function apiRequest(path, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const url = `${API_BASE_URL}${path}`;
+  const response = await fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -52,31 +62,118 @@ async function apiRequest(path, options = {}) {
   return data;
 }
 
-function showMessage(id, message) {
+function showMessage(id, message, isError = false) {
   const element = $(id);
-  if (element) element.textContent = message;
+  if (element) {
+    element.textContent = message;
+    element.style.color = isError ? "var(--accent-rose)" : "var(--accent-secondary)";
+  }
 }
 
 function setFormBusy(form, busy) {
   const button = form.querySelector('button[type="submit"]');
-  if (button) button.disabled = busy;
+  if (button) {
+    button.disabled = busy;
+  }
 }
 
+/**
+ * Tab switching between Sign In and Create Account
+ */
+function switchAuthTab(tab) {
+  const loginCard = $("loginCard");
+  const registerCard = $("registerCard");
+  const mfaCard = $("mfaCard");
+  const tabLogin = $("tabLogin");
+  const tabRegister = $("tabRegister");
+
+  // Reset any visible messages
+  showMessage("loginMessage", "");
+  showMessage("registerMessage", "");
+  showMessage("mfaMessage", "");
+
+  if (mfaCard) mfaCard.hidden = true;
+
+  if (tab === "register") {
+    if (loginCard) loginCard.hidden = true;
+    if (registerCard) registerCard.hidden = false;
+    tabLogin.classList.remove("active");
+    tabRegister.classList.add("active");
+    const nameInput = $("registerName");
+    if (nameInput) nameInput.focus();
+  } else {
+    if (registerCard) registerCard.hidden = true;
+    if (loginCard) loginCard.hidden = false;
+    tabRegister.classList.remove("active");
+    tabLogin.classList.add("active");
+    const emailInput = $("loginEmail");
+    if (emailInput) emailInput.focus();
+  }
+}
+window.switchAuthTab = switchAuthTab;
+
+function cancelMfa() {
+  $("mfaCard").hidden = true;
+  $("loginCard").hidden = false;
+  showMessage("mfaMessage", "");
+}
+window.cancelMfa = cancelMfa;
+
+/**
+ * View portfolio as Guest (Recruiters / Visitors)
+ */
+function continueAsGuest() {
+  $("auth").hidden = true;
+  $("portfolioContent").hidden = false;
+  $("logoutButton").hidden = true;
+  $("userPill").hidden = true;
+  $("guestLoginBtn").hidden = false;
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+window.continueAsGuest = continueAsGuest;
+
+/**
+ * Re-open Auth Screen for guests
+ */
+function openAuthModal() {
+  $("auth").hidden = false;
+  $("portfolioContent").hidden = true;
+  switchAuthTab("login");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+window.openAuthModal = openAuthModal;
+
+/**
+ * Display Authenticated view
+ */
 function setAuthenticatedView(user) {
   $("auth").hidden = true;
   $("portfolioContent").hidden = false;
   $("logoutButton").hidden = false;
+  $("guestLoginBtn").hidden = true;
+
+  const userPill = $("userPill");
+  const userInitial = $("userInitial");
+  const userNameLabel = $("userNameLabel");
+
+  if (userPill) userPill.hidden = false;
+  if (user && user.name) {
+    if (userNameLabel) userNameLabel.textContent = user.name;
+    if (userInitial) userInitial.textContent = user.name.charAt(0).toUpperCase();
+  } else if (user && user.email) {
+    if (userNameLabel) userNameLabel.textContent = user.email.split("@")[0];
+    if (userInitial) userInitial.textContent = user.email.charAt(0).toUpperCase();
+  }
 
   window.scrollTo({ top: 0, behavior: "instant" });
 }
 
-// 1. Register a new account.
+// 1. REGISTER
 $("registerForm").addEventListener("submit", async (event) => {
   event.preventDefault();
-
   const form = event.currentTarget;
   setFormBusy(form, true);
-  showMessage("registerMessage", "");
+  showMessage("registerMessage", "Creating your account...");
 
   const name = $("registerName").value.trim();
   const email = $("registerEmail").value.trim();
@@ -88,27 +185,27 @@ $("registerForm").addEventListener("submit", async (event) => {
       body: JSON.stringify({ name, email, password }),
     });
 
-    showMessage(
-      "registerMessage",
-      data.message || "Account created. Please sign in.",
-    );
-
+    showMessage("registerMessage", data.message || "Account created! Redirecting to sign in...");
     $("loginEmail").value = email;
     $("loginPassword").value = "";
+
+    setTimeout(() => {
+      switchAuthTab("login");
+      showMessage("loginMessage", "Account created. Enter your password to sign in.");
+    }, 1200);
   } catch (error) {
-    showMessage("registerMessage", error.message);
+    showMessage("registerMessage", error.message, true);
   } finally {
     setFormBusy(form, false);
   }
 });
 
-// 2. Sign in and request an email MFA code.
+// 2. SIGN IN (Requests Email OTP)
 $("loginForm").addEventListener("submit", async (event) => {
   event.preventDefault();
-
   const form = event.currentTarget;
   setFormBusy(form, true);
-  showMessage("loginMessage", "");
+  showMessage("loginMessage", "Validating credentials and dispatching code...");
 
   const email = $("loginEmail").value.trim();
   const password = $("loginPassword").value;
@@ -121,39 +218,36 @@ $("loginForm").addEventListener("submit", async (event) => {
 
     pendingEmail = data.email || email;
 
+    // Transition smoothly to MFA card
+    $("loginCard").hidden = true;
     $("mfaCard").hidden = false;
     $("mfaCode").value = "";
 
     showMessage(
-      "loginMessage",
-      data.message || "Check your email for the verification code.",
+      "mfaMessage",
+      data.message || "Verification code sent! Please check your email.",
     );
 
-    $("mfaCard").scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-
+    $("mfaCard").scrollIntoView({ behavior: "smooth", block: "center" });
     $("mfaCode").focus();
   } catch (error) {
-    showMessage("loginMessage", error.message);
+    showMessage("loginMessage", error.message, true);
   } finally {
     setFormBusy(form, false);
   }
 });
 
-// 3. Verify the six-digit code and store the JWT for this tab session.
+// 3. VERIFY MFA CODE
 $("mfaForm").addEventListener("submit", async (event) => {
   event.preventDefault();
-
   const form = event.currentTarget;
   setFormBusy(form, true);
-  showMessage("mfaMessage", "");
+  showMessage("mfaMessage", "Verifying passcode...");
 
   const code = $("mfaCode").value.trim();
 
   if (!pendingEmail) {
-    showMessage("mfaMessage", "Please sign in again to request a new code.");
+    showMessage("mfaMessage", "Session expired. Please sign in again.", true);
     setFormBusy(form, false);
     return;
   }
@@ -168,7 +262,7 @@ $("mfaForm").addEventListener("submit", async (event) => {
     });
 
     if (!data.token || !data.user) {
-      throw new Error("The server did not return a valid login session.");
+      throw new Error("Invalid session token returned by the server.");
     }
 
     sessionStorage.setItem("portfolio_token", data.token);
@@ -177,16 +271,20 @@ $("mfaForm").addEventListener("submit", async (event) => {
     setAuthenticatedView(data.user);
     showMessage("mfaMessage", "");
   } catch (error) {
-    showMessage("mfaMessage", error.message);
+    showMessage("mfaMessage", error.message, true);
   } finally {
     setFormBusy(form, false);
   }
 });
 
-// 4. Check whether this tab already has a valid session.
+// 4. RESTORE ACTIVE SESSION ON LOAD
 async function restoreSession() {
   const token = sessionStorage.getItem("portfolio_token");
-  if (!token) return;
+  if (!token) {
+    // If no session exists, default to letting visitors browse the portfolio directly!
+    continueAsGuest();
+    return;
+  }
 
   try {
     const data = await apiRequest("/api/auth/me", {
@@ -198,36 +296,23 @@ async function restoreSession() {
     setAuthenticatedView(data.user);
   } catch {
     sessionStorage.removeItem("portfolio_token");
+    continueAsGuest();
   }
 }
 
-// 5. Log out and discard the client-side token.
-
+// 5. LOGOUT
 $("logoutButton").addEventListener("click", async () => {
   const token = sessionStorage.getItem("portfolio_token");
 
-  // Clear the session immediately.
   sessionStorage.removeItem("portfolio_token");
   pendingEmail = "";
 
-  // Hide the portfolio and return to authentication.
-  $("portfolioContent").hidden = true;
-  $("logoutButton").hidden = true;
-  $("auth").hidden = false;
+  continueAsGuest();
 
-  // Reset the login and MFA forms.
   $("loginForm").reset();
   $("registerForm").reset();
   $("mfaForm").reset();
 
-  $("mfaCard").hidden = true;
-
-  showMessage("loginMessage", "You have logged out successfully.");
-  showMessage("mfaMessage", "");
-
-  window.scrollTo({ top: 0, behavior: "instant" });
-
-  // Notify the backend when possible.
   if (token) {
     try {
       await apiRequest("/api/auth/logout", {
@@ -237,9 +322,10 @@ $("logoutButton").addEventListener("click", async () => {
         },
       });
     } catch (error) {
-      console.error("Logout request failed:", error.message);
+      console.warn("Logout request failed:", error.message);
     }
   }
 });
 
+// Initialize session
 restoreSession();
