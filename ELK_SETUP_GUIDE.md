@@ -103,20 +103,21 @@ Because your backend is hosted in **Render** and the frontend is on **GitHub**, 
      ```
    - Render will automatically redeploy with the new settings.
 
-### Option B: Expose Local ELK to Render using Ngrok (Great for Free Local Testing)
+### Option B: Expose Local ELK to Render using Cloudflare Tunnel (100% Free)
 If you want to use the local Docker ELK stack on your computer with your live Render backend:
-1. Install [ngrok](https://ngrok.com/) or run:
+1. Double-click `start-tunnel.bat` or run:
    ```powershell
-   ngrok http 9200
+   npm run tunnel
    ```
-2. Ngrok will give you a public URL like:
-   `https://a1b2-c3d4.ngrok-free.app`
+   *(or if running the full Docker stack: `docker logs portfolio-cloudflared`)*
+2. Cloudflare will give you a free, public HTTPS URL like:
+   `https://random-words.trycloudflare.com`
 3. In your **Render Dashboard** -> **Environment**, set:
    ```env
-   ELASTICSEARCH_NODE=https://a1b2-c3d4.ngrok-free.app
+   ELASTICSEARCH_NODE=https://random-words.trycloudflare.com
    ELASTICSEARCH_INDEX=portfolio-logs
    ```
-4. Now, any login from your GitHub frontend will hit Render, and Render will send the log through the ngrok tunnel directly into your local Kibana!
+4. Now, any sign-in from your GitHub frontend will hit Render, and Render will send the audit log through Cloudflare's secure edge directly into your local Kibana!
 
 ---
 

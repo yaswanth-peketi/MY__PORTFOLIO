@@ -111,6 +111,18 @@ services:
     networks:
       - portfolio-net
 
+  # 6. Cloudflare Tunnel (100% Free, automatically connects Elasticsearch to Render)
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: portfolio-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://elasticsearch:9200
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - portfolio-net
+
 volumes:
   pg_data:
     driver: local

@@ -8,7 +8,9 @@
     "start": "node backend/server.js",
     "dev": "node --watch backend/server.js",
     "install:backend": "npm --prefix backend install",
-    "test:elk": "npm --prefix backend run test:elk"
+    "test:elk": "npm --prefix backend run test:elk",
+    "tunnel": "cloudflared tunnel --url http://localhost:9200",
+    "tunnel:logs": "docker logs -f portfolio-cloudflared"
   },
   "engines": {
     "node": ">=20"
