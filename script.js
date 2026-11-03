@@ -150,7 +150,7 @@ function setAuthenticatedView(user) {
   $("auth").hidden = true;
   $("portfolioContent").hidden = false;
   $("logoutButton").hidden = false;
-  $("guestLoginBtn").hidden = true;
+  if ($("guestLoginBtn")) $("guestLoginBtn").hidden = true;
 
   const userPill = $("userPill");
   const userInitial = $("userInitial");
@@ -281,8 +281,10 @@ $("mfaForm").addEventListener("submit", async (event) => {
 async function restoreSession() {
   const token = sessionStorage.getItem("portfolio_token");
   if (!token) {
-    // If no session exists, default to letting visitors browse the portfolio directly!
-    continueAsGuest();
+    // First opening: Must ask to Sign In or Register!
+    $("auth").hidden = false;
+    $("portfolioContent").hidden = true;
+    switchAuthTab("login");
     return;
   }
 
@@ -296,7 +298,9 @@ async function restoreSession() {
     setAuthenticatedView(data.user);
   } catch {
     sessionStorage.removeItem("portfolio_token");
-    continueAsGuest();
+    $("auth").hidden = false;
+    $("portfolioContent").hidden = true;
+    switchAuthTab("login");
   }
 }
 
@@ -307,7 +311,11 @@ $("logoutButton").addEventListener("click", async () => {
   sessionStorage.removeItem("portfolio_token");
   pendingEmail = "";
 
-  continueAsGuest();
+  // Return directly to the Sign In / Register view
+  $("auth").hidden = false;
+  $("portfolioContent").hidden = true;
+  switchAuthTab("login");
+  window.scrollTo({ top: 0, behavior: "smooth" });
 
   $("loginForm").reset();
   $("registerForm").reset();
