@@ -15,22 +15,21 @@ function resolveApiBaseUrl() {
   const hostname = window.location.hostname;
   const port = window.location.port;
 
-  // 1. If served directly by the Node backend (port 3000) or Docker Nginx reverse proxy (port 80)
+  // 1. For GitHub Pages, file:// protocol, or static live servers (e.g. :5500),
+  // connect directly to the Render backend.
   if (
-    (hostname === "localhost" || hostname === "127.0.0.1") &&
-    (port === "3000" || port === "80" || port === "")
+    window.location.protocol === "file:" ||
+    !hostname ||
+    hostname.endsWith(".github.io") ||
+    ((hostname === "localhost" || hostname === "127.0.0.1") &&
+      (port === "5500" || port === "5501" || port === "5173"))
   ) {
-    return "";
+    return RENDER_BACKEND_URL;
   }
 
-  // 2. If loaded directly from the Render deployment URL
-  if (hostname.endsWith(".onrender.com")) {
-    return "";
-  }
-
-  // 3. For GitHub Pages (e.g. yaswanth-peketi.github.io), custom domains, file:// protocol,
-  // or local live servers (e.g. :5500), connect directly to the Render backend.
-  return RENDER_BACKEND_URL;
+  // 2. For self-hosted deployments (AWS EC2, Docker Nginx, Minikube, Render),
+  // use relative same-origin API routes (/api/...).
+  return "";
 }
 
 const API_BASE_URL = resolveApiBaseUrl();

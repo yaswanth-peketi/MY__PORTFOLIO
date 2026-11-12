@@ -54,6 +54,8 @@ app.use(
           "http://localhost:*",
           "http://127.0.0.1:*",
         ],
+        upgradeInsecureRequests:
+          process.env.FORCE_HTTPS === "true" ? [] : null,
       },
     },
     crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -138,10 +140,22 @@ const allowedOrigins = new Set([
     .filter(Boolean),
 ]);
 
-function isAllowedOrigin(origin) {
+function isAllowedOrigin(origin, req) {
   if (!origin || origin === "null") return true;
   const clean = origin.replace(/\/$/, "");
   if (allowedOrigins.has(clean)) return true;
+  // Allow same-host requests proxied through Nginx (e.g. AWS EC2 IP/DNS, Minikube, custom domains)
+  if (req) {
+    try {
+      const originHost = new URL(clean).host;
+      const reqHost = (req.get("x-forwarded-host") || req.get("host") || "")
+        .split(",")[0]
+        .trim();
+      if (originHost && reqHost && originHost === reqHost) return true;
+    } catch {
+      // Ignore invalid origin URLs
+    }
+  }
   // Allow localhost / 127.0.0.1 on any port for local development & testing
   if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(clean)) return true;
   // Allow any GitHub Pages domain
@@ -152,16 +166,17 @@ function isAllowedOrigin(origin) {
 }
 
 app.use(
-  cors({
-    origin(origin, callback) {
-      if (isAllowedOrigin(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error("Origin is not allowed by CORS."));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+  cors((req, callback) => {
+    const origin = req.header("Origin");
+    if (isAllowedOrigin(origin, req)) {
+      return callback(null, {
+        origin: true,
+        credentials: true,
+        methods: ["GET", "POST", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+      });
+    }
+    return callback(new Error("Origin is not allowed by CORS."));
   }),
 );
 
