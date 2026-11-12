@@ -618,6 +618,15 @@ app.post("/api/payment/create-order", async (req, res) => {
       receipt: `mp_${crypto.randomBytes(8).toString("hex")}`,
     });
 
+    await logToElk({
+      event: "payment_order_created",
+      type: "payment_audit",
+      status: "pending",
+      message: `Razorpay order ${order.id} created for INR ${order.amount / 100}`,
+      details: { orderId: order.id, amount: order.amount, currency: order.currency },
+      req,
+    });
+
     res.json({
       orderId: order.id,
       amount: order.amount,
@@ -626,6 +635,15 @@ app.post("/api/payment/create-order", async (req, res) => {
     });
   } catch (error) {
     console.error("Razorpay order creation failed:", error.message);
+
+    await logToElk({
+      event: "payment_order_failed",
+      type: "payment_audit",
+      status: "failure",
+      message: `Razorpay order creation failed: ${error.message}`,
+      details: { reason: error.message },
+      req,
+    });
 
     res.status(502).json({
       error: "Could not create a payment order.",
@@ -669,6 +687,14 @@ app.post("/api/payment/verify", async (req, res) => {
       received.length !== expected.length ||
       !crypto.timingSafeEqual(received, expected)
     ) {
+      await logToElk({
+        event: "payment_verification_failed",
+        type: "payment_audit",
+        status: "failure",
+        message: `Payment signature mismatch for order ${razorpay_order_id}`,
+        details: { orderId: razorpay_order_id, reason: "invalid_signature" },
+        req,
+      });
       return res.status(400).json({
         verified: false,
         error: "Invalid payment signature.",
@@ -684,11 +710,28 @@ app.post("/api/payment/verify", async (req, res) => {
       payment.amount !== PAYMENT_AMOUNT_PAISE ||
       payment.currency !== "INR"
     ) {
+      await logToElk({
+        event: "payment_verification_failed",
+        type: "payment_audit",
+        status: "failure",
+        message: `Payment capture check failed for order ${razorpay_order_id}`,
+        details: { orderId: razorpay_order_id, paymentId: razorpay_payment_id, reason: payment.status },
+        req,
+      });
       return res.status(400).json({
         verified: false,
         error: "Payment is not captured or does not match the order.",
       });
     }
+
+    await logToElk({
+      event: "payment_verified",
+      type: "payment_audit",
+      status: "success",
+      message: `Advance payment ${payment.id} verified for INR ${payment.amount / 100}`,
+      details: { orderId: razorpay_order_id, paymentId: payment.id, amount: payment.amount, currency: payment.currency },
+      req,
+    });
 
     return res.json({
       verified: true,
